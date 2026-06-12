@@ -1,5 +1,17 @@
 # 数学建模竞赛求解+论文自动生成模板
 
+## ⛔ 全自动模式（最高优先级）
+
+**本模板设计为全自动无人值守运行。以下规则优先级高于一切：**
+
+1. **禁止任何形式的用户交互**：不询问、不确认、不等候、不提示选择
+2. **禁止中断等待**：遇到任何决策点自行判断并继续，不做 `ask` 类操作
+3. **从头到尾一次性完成**：读取输入 → 生成计划 → 逐题求解 → 撰写论文 → 编译 PDF，中间不停
+4. **编译后自动排版优化**：无需询问，直接执行
+5. **即使遇到不确定性也自行选择最优方案继续**，不做任何停顿
+
+---
+
 ## 项目结构
 
 ```
@@ -12,7 +24,8 @@
 │   ├── 预处理数据.csv
 │   ├── 问题一/
 │   │   ├── 问题一_<描述>.py
-│   │   └── figures/
+│   │   ├── 图片/
+│   │   └── 结果/
 │   ├── 问题二/ ...
 │   └── 问题N/
 └── 论文/                  ← AI自动生成
@@ -29,13 +42,15 @@
     └── 10.附录.tex
 ```
 
-**文件命名**：代码、图、CSV、tex文件一律中文。图存 `求解/问题X/figures/`，论文通过 `../求解/问题X/figures/xxx.png` 引用。CSV存 `求解/`。论文目录只放tex+cls+fonts。
+**文件命名**：代码、图、CSV、tex文件一律中文。图存 `求解/问题X/图片/`，论文通过 `../求解/问题X/图片/xxx.png` 引用。CSV/结果存 `求解/问题X/结果/`。论文目录只放tex+cls+fonts。
 
 ---
 
 ## 一、执行流程
 
 触发：用户说"开始求解"/"求解这个题目"/"按规则求解"。
+
+**全自动模式：全程无需用户确认，不询问、不等待、不中断。从读取输入到论文编译完成一气呵成。**
 
 ### Step 0：读取输入
 1. 读 `题目/`（PDF用PyPDF2，DOCX用python-docx）
@@ -57,7 +72,7 @@
 - **异常预案**：数据缺失、模型不收敛等备选处理
 
 ### Step 2：逐题求解
-1. 按N创建 `求解/问题一/figures/` ~ `求解/问题N/figures/`
+1. 按N创建 `求解/问题一/图片/` ~ `求解/问题N/图片/`（如不存在），创建 `求解/问题一/结果/` ~ `求解/问题N/结果/`（如不存在）
 2. 每个问题一个py文件，中文命名，放在 `求解/问题<序号>/`
 3. py文件内部**先算后画**：先完成所有计算得到数值结果，打印每组数据的 min/max/mean/std/CV/amplitude（供论文引用），然后画图（每题至少 4-6 张图，覆盖主要分析维度，多多益善）
 4. 问题1输出 `求解/预处理数据.csv` 供后续共用
@@ -78,18 +93,16 @@ xelatex -interaction=nonstopmode 论文.tex
 ```
 `grep -c 'Error' 论文.log` 必须为0。有 Error 则修复重编译直到 0。
 
-### Step 5（可选）：排版优化
+### Step 5（自动）：排版优化
 
-编译0错误后，询问用户是否需要排版优化。等用户确认后再执行。
-
-**不需要**：项目完成。
-
-**需要**：反复执行以下循环直到所有问题清除：
+编译0错误后，自动执行排版优化直到所有问题清除：
 1. `grep 'Overfull\|Underfull\|Float too large' 论文.log`
 2. 根据 warning 定位对应 tex 文件的具体行
 3. 修复（缩短表格文字、调整图表尺寸、收紧段落等）
 4. `xelatex ×2` 重编译，重新检查
 5. 直到日志干净、排版紧密、无溢出无大面积空白、图表正常
+
+**全程无需用户确认，自动执行。**
 
 ---
 
@@ -110,13 +123,22 @@ xelatex -interaction=nonstopmode 论文.tex
 ### 论文.tex 主文件结构
 
 ```latex
+\PassOptionsToPackage{quiet}{xeCJK}
 \documentclass[withoutpreface,bwprint]{format}
+\usepackage{etoolbox}
 \usepackage{ctex}
+\BeforeBeginEnvironment{tabular}{\zihao{-5}}
 \usepackage[framemethod=TikZ]{mdframed}
-\usepackage{url, array}
+\usepackage{url}
+\usepackage{array}
+\usepackage{tabularx}
+\usepackage{longtable}
 \newcolumntype{C}{>{\centering\arraybackslash}X}
+\newcolumntype{R}{>{\raggedleft\arraybackslash}X}
 \newcolumntype{L}{>{\raggedright\arraybackslash}X}
+
 \renewcommand{\textbf}[1]{{\song\bfseries #1}}
+
 \usepackage{tikz}
 \usetikzlibrary{arrows.meta}
 \tikzset{
@@ -127,9 +149,18 @@ xelatex -interaction=nonstopmode 论文.tex
 \title{论文标题}
 
 \begin{document}
+
 \maketitle
+\thispagestyle{empty}
+
 \input{0.摘要.tex}
+\thispagestyle{empty}
+
 \tableofcontents
+\thispagestyle{empty}
+\newpage
+
+\setcounter{page}{1}
 
 \input{1.引言.tex}
 
@@ -186,10 +217,10 @@ xelatex -interaction=nonstopmode 论文.tex
 【每问从这里复制，选对应类型模板填入】
 
 综上，本文为【领域】问题提供了高效解决方案。
-\label{abstract:end}
-\end{abstract}
 
 \keywords{【关键词1】；【关键词2】；【关键词3】；【关键词4】；【关键词5】；【关键词6】}
+\label{abstract:end}
+\end{abstract}
 ```
 
 **每问三种类型，对号入座**：
@@ -609,9 +640,10 @@ def despine(ax):
     ax.spines['right'].set_visible(False)
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-FIG_DIR = os.path.join(BASE_DIR, 'figures')
-OUT_DIR = os.path.join(BASE_DIR, os.pardir)
+FIG_DIR = os.path.join(BASE_DIR, '图片')
+OUT_DIR = os.path.join(BASE_DIR, '结果')
 os.makedirs(FIG_DIR, exist_ok=True)
+os.makedirs(OUT_DIR, exist_ok=True)
 
 def save_fig(fig, name_cn):
     fig.savefig(FIG_DIR + name_cn)

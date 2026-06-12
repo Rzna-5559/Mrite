@@ -518,7 +518,7 @@ BoldFont = SourceHanSerifCN-Bold.otf
 	 \end{center}%
  	 \quotation
 	\fi}
-	{\if@twocolumn\else\endquotation\newpage\null\fi}
+	{\if@twocolumn\else\endquotation\newpage\fi}
 \renewenvironment{quotation}
 	{\list{}{\listparindent 2em%
 	 \itemindent \listparindent

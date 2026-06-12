@@ -27,56 +27,6 @@
 
 
 
-% 定义新命令
-\makeatletter
-\newcommand{\teamcode}[1]{\def\@teamcode{#1}}  % 队伍编号
-\newcommand{\problemnumber}[1]{\def\@problemnumber{#1}}  % 题号
-
-\renewcommand{\maketitle}{%
-	\begin{center}
-		% 表格尺寸设置说明：
-		% arraystretch 控制表格行高（默认值为1，大于1会增加行高）
-		% tabcolsep 控制单元格左右边距（默认值约为6pt）
-		% 表格总宽度通过 p{} 来控制（可以用cm或em为单位）
-		\renewcommand{\arraystretch}{6}  % 调整这个值可以改变表格行高
-		\setlength{\tabcolsep}{30pt}  % 调整这个值可以改变表格左右边距
-		{\zihao{5}  % 设置表格中的字体为五号
-			\begin{tabular}{|c|c|}
-				\hline
-				队伍编号 & \@teamcode \\
-				\hline
-				题号 & \@problemnumber \\
-				\hline
-			\end{tabular}
-		}
-		
-		
-		\vspace{0.5cm}  % 表格到横线的距离
-		
-		% 添加论文题目上方的横线，宽度与正文相同
-		\rule{\textwidth}{1pt}  % 横线宽度设置为\textwidth，粗细增加到1pt
-		\vspace{-0.5cm}  % 横线到论文题目的距离
-		
-		% 论文题目：宋体四号
-		{\zihao{4}\songti\bfseries \@title}
-		
-	\end{center}
-}
-\makeatother
-
-
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-
-% 设置默认值
-\teamcode{MCxxxxxxx}  % 队伍编号
-\problemnumber{C}  % 题号
-
-
-
-
-
 
 
 
@@ -88,20 +38,35 @@
 %% 正文
 \begin{document}
 
-% 封面和目录页不显示页码
-\pagenumbering{gobble}
-\maketitle
+% 封面信息表（表格在上，标题在下）
+{\centering
+\begin{tabular}{|>{\centering\arraybackslash}p{0.14\textwidth}|>{\centering\arraybackslash}p{0.62\textwidth}|>{\centering\arraybackslash}p{0.14\textwidth}|}
+	\hline
+	\zihao{5}选题 & \multirow{3}{0.62\textwidth}{\centering\zihao{4}\textbf{2026年第十六届APMCM\\[6pt]亚太地区大学生数学建模竞赛（中文赛项）}} & \zihao{5}参赛编号 \\
+	\cline{1-1}\cline{3-3}
+	\multirow{2}{*}{\zihao{5}这里填写选题} & & \multirow{2}{*}{\zihao{5}apmcm******} \\
+	&&\\
+	\hline
+\end{tabular}
+\par}
+
+\vskip2ex
+
+% 标题
+{\centering\zihao{3}\bfseries 论文标题\par}
+
+\setcounter{page}{1}
+
+\thispagestyle{empty}
 
 \input{0.摘要.tex}
+\thispagestyle{empty}
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\vspace{-1.4cm}
 \tableofcontents
+\thispagestyle{empty}
 \newpage
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\pagenumbering{arabic}
-\vspace{-1.4cm}
+\setcounter{page}{1}
 
 \input{1.引言.tex}
 
